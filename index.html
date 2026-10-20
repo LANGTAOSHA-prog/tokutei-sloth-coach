@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sloth Coach · 特定技能 建設 mistake coach</title>
+<meta name="description" content="A lazy study coach for the Japanese construction skills exam. Gemma runs in your browser and explains every wrong answer in your language.">
+<style>
+  :root { --bg:#f6f4ee; --card:#fff; --ink:#222; --muted:#6b6b6b; --ok:#2f7d4a; --bad:#b33a2b; --accent:#7a5c3e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Hiragino Sans","Noto Sans JP","Segoe UI",sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; }
+  main { max-width:640px; margin:0 auto; padding:16px; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  h1 { font-size:1.25rem; margin:8px 0; }
+  .muted { color:var(--muted); font-size:.85rem; }
+  .card { background:var(--card); border-radius:14px; padding:16px; margin:12px 0; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  select, button { font:inherit; padding:8px 12px; border-radius:10px; border:1px solid #ccc; background:#fff; }
+  button.primary { background:var(--accent); color:#fff; border:none; }
+  button:disabled { opacity:.5; }
+  .choices button { display:block; width:100%; text-align:left; margin:8px 0; padding:12px; }
+  .choices button.right { border-color:var(--ok); background:#eaf6ee; }
+  .choices button.wrong { border-color:var(--bad); background:#fbecea; }
+  .topic { display:inline-block; font-size:.75rem; background:#efe7dc; color:var(--accent); padding:2px 8px; border-radius:99px; }
+  #explain { white-space:pre-wrap; min-height:1.5em; }
+  #progressBar { height:6px; background:#e5e0d6; border-radius:99px; overflow:hidden; }
+  #progressBar div { height:100%; width:0; background:var(--accent); transition:width .3s; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  ol { padding-left:1.2em; }
+  footer { text-align:center; margin:24px 0; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>🦥 Sloth Coach</h1>
+    <div class="row">
+      <select id="lang" aria-label="Explanation language">
+        <option value="Simplified Chinese">中文</option>
+        <option value="English">English</option>
+        <option value="Vietnamese">Tiếng Việt</option>
+        <option value="Indonesian">Bahasa Indonesia</option>
+        <option value="easy Japanese (やさしい日本語)">やさしい日本語</option>
+      </select>
+      <select id="model" aria-label="Model">
+        <option value="gemma3-1b-it-q4f16_1-MLC">Gemma 3 1B (fast, ~0.9GB)</option>
+        <option value="gemma-2-2b-it-q4f16_1-MLC">Gemma 2 2B (better, ~1.5GB)</option>
+        <option value="gemma-4-E2B-it-q4f16_1-MLC">Gemma 4 E2B (newest, larger)</option>
+      </select>
+    </div>
+  </header>
+  <p class="muted">特定技能「建設」の練習問題。間違えたら、ブラウザの中で動く Gemma が理由を説明します。データはこの端末から出ません。<br>
+  Get one wrong and an open model running inside this page explains why, in your language. Nothing leaves your phone.</p>
+
+  <div class="card" id="modelCard">
+    <div class="row" style="justify-content:space-between">
+      <span id="modelStatus" class="muted">Model not loaded yet. It downloads once, then works offline.</span>
+      <button id="loadBtn" class="primary">Load model</button>
+    </div>
+    <div id="progressBar" style="margin-top:8px"><div></div></div>
+  </div>
+
+  <div class="card" id="quiz">
+    <div class="row" style="justify-content:space-between">
+      <span class="topic" id="topic"></span>
+      <span class="muted" id="counter"></span>
+    </div>
+    <p id="question" style="font-weight:600"></p>
+    <div class="choices" id="choices"></div>
+    <div id="explainBox" hidden>
+      <p class="muted" style="margin-bottom:4px">🦥 Coach</p>
+      <div id="explain"></div>
+    </div>
+    <div class="row" style="justify-content:flex-end; margin-top:8px">
+      <button id="nextBtn" hidden>Next →</button>
+    </div>
+  </div>
+
+  <div class="card" id="reviewCard" hidden>
+    <h2 style="font-size:1.05rem;margin-top:0">Tomorrow's review list</h2>
+    <div id="reviewText" style="white-space:pre-wrap"></div>
+    <ol id="reviewList"></ol>
+    <button id="restartBtn">Start again</button>
+  </div>
+
+  <footer class="muted">
+    Open source · <a href="https://github.com/LANGTAOSHA-prog/tokutei-sloth-coach">GitHub</a> · Sample questions only. Full bank at tokutegino.
+  </footer>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
